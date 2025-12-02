@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 enum Direction {
     North,
     East,
@@ -27,6 +29,7 @@ impl Direction {
     }
 }
 
+#[derive(Hash, PartialEq, Eq, Clone)]
 struct Position {
     x: isize,
     y: isize,
@@ -71,5 +74,28 @@ fn part1(input: String) {
 }
 
 fn part2(input: String) {
-    todo!()
+    let input = input.trim();
+    let mut direction = STARTING_DIRECTION;
+    let mut position = Position { x: 0, y: 0 };
+    let mut positions_visited: HashSet<Position> = HashSet::new();
+    'outer: for instruction in input.split(", ") {
+        match &instruction[..1] {
+            "L" => direction = direction.rotate_anticlockwise(),
+            "R" => direction = direction.rotate_clockwise(),
+            _ => panic!("This should never be the case"),
+        }
+        let steps: isize = instruction[1..].parse().expect("This will always be a valid number");
+        for i in 0..steps {
+            match direction {
+                Direction::North => position.y += 1,
+                Direction::East => position.x += 1,
+                Direction::South => position.y -= 1,
+                Direction::West => position.x -= 1,
+            }
+            if !positions_visited.insert(position.clone()) {
+                break 'outer;
+            }
+        }
+    }
+    println!("{}", position.x.abs() + position.y.abs());
 }
