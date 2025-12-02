@@ -1,6 +1,7 @@
+#[derive(Clone)]
 struct Position {
-    x: usize,
-    y: usize,
+    x: isize,
+    y: isize,
 }
 
 fn main() {
@@ -24,10 +25,10 @@ fn part1(input: String) {
     for instruction in input.lines() {
         for direction in instruction.chars() { 
             match direction {
-                'U' => keypad_position.y = keypad_position.y.saturating_sub(1),
-                'R' => if keypad_position.x != 2 { keypad_position.x = keypad_position.x + 1; },
-                'D' => if keypad_position.y != 2 { keypad_position.y = keypad_position.y + 1; },
-                'L' => keypad_position.x = keypad_position.x.saturating_sub(1),
+                'U' => if keypad_position.y != 0 { keypad_position.y -= 1 },
+                'R' => if keypad_position.x != 2 { keypad_position.x += 1 },
+                'D' => if keypad_position.y != 2 { keypad_position.y += 1 },
+                'L' => if keypad_position.x != 0 { keypad_position.x -= 1 },
                 _ => unreachable!("This is wrong :("),
             }
         }
@@ -49,5 +50,39 @@ fn part1(input: String) {
 }
 
 fn part2(input: String) {
-    todo!()
+    let mut keypad_position = Position { x: 1, y: 1 };
+    let mut code = String::new();
+    for instruction in input.lines() {
+        for direction in instruction.chars() { 
+            let previous_position = keypad_position.clone();
+            match direction {
+                'U' => keypad_position.y -= 1,
+                'R' => keypad_position.x += 1,
+                'D' => keypad_position.y += 1,
+                'L' => keypad_position.x -= 1,
+                _ => unreachable!("This is wrong :("),
+            }
+            if keypad_position.x.abs() + keypad_position.y.abs() > 2 {
+                keypad_position = previous_position
+            }
+        }
+        let keypad_char = match (keypad_position.x, keypad_position.y) {
+            (0, -2) => '1',
+            (-1, -1) => '2',
+            (0, -1) => '3',
+            (1, -1) => '4',
+            (-2, 0) => '5',
+            (-1, 0) => '6',
+            (0, 0) => '7',
+            (1, 0) => '8',
+            (2, 0) => '9',
+            (-1, 1) => 'A',
+            (0, 1) => 'B',
+            (1, 1) => 'C',
+            (0, 2) => 'D',
+            _ => unreachable!("The position shouldn't be out of bounds"),
+        };
+        code.push(keypad_char);
+    }
+    println!("{}", code);
 }
